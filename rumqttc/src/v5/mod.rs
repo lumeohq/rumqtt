@@ -33,7 +33,7 @@ pub type Incoming = Packet;
 
 /// Requests by the client to mqtt event loop. Request are
 /// handled one by one.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Request {
     Publish(Publish),
     PubAck(PubAck),
@@ -47,6 +47,12 @@ pub enum Request {
     Unsubscribe(Unsubscribe),
     UnsubAck(UnsubAck),
     Disconnect,
+}
+
+impl From<Subscribe> for Request {
+    fn from(subscribe: Subscribe) -> Self {
+        Self::Subscribe(subscribe)
+    }
 }
 
 #[cfg(feature = "websocket")]

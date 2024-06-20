@@ -2,7 +2,7 @@ use super::*;
 use bytes::{Buf, Bytes};
 
 /// Subscription packet
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct Subscribe {
     pub pkid: u16,
     pub filters: Vec<SubscribeFilter>,
@@ -93,6 +93,14 @@ impl Subscribe {
 
         Ok(1 + remaining_len_bytes + remaining_len)
     }
+
+    pub(crate) fn has_valid_filters(&self) -> bool {
+        if self.filters.is_empty() {
+            return false;
+        }
+
+        self.filters.iter().all(SubscribeFilter::is_valid)
+    }
 }
 
 ///  Subscription filter
@@ -118,6 +126,10 @@ impl SubscribeFilter {
 
         write_mqtt_string(buffer, self.path.as_str());
         buffer.put_u8(options);
+    }
+
+    fn is_valid(&self) -> bool {
+        valid_filter(&self.path)
     }
 }
 
